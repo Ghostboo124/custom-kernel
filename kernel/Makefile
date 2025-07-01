@@ -20,8 +20,8 @@ OBJCOPY		:= $(ARCH)-objcopy
 
 # Rust configuration
 RUST_TARGET 		:= ./target.json
-RUST_LIB			:= target/$(RUST_TARGET)/debug/libcustom_kernel.a
-RUST_LIB_RELEASE	:= target/$(RUST_TARGET)/release/libcustom_kernel.a
+RUST_LIB			:= ../target/target/debug/libcustom_kernel.a
+RUST_LIB_RELEASE	:= ../target/target/release/libcustom_kernel.a
 
 # Include directories
 KERNEL_INCLUDE_DIRS		:= $(shell find . -type d)
@@ -49,8 +49,8 @@ all: $(TARGET)
 # Build the kernel executable
 $(TARGET): ../shared/libshared.a $(OBJ) rust-lib
 	mkdir -p ../out/kernel/
-# 	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJL) ../shared/libshared.a
-# 	$(OBJCOPY) -O binary ../out/kernel/$(ELF) ../out/kernel/$(TARGET)
+	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJL) ../shared/libshared.a $(RUST_LIB)
+	$(OBJCOPY) -O binary ../out/kernel/$(ELF) ../out/kernel/$(TARGET)
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -64,7 +64,7 @@ $(TARGET): ../shared/libshared.a $(OBJ) rust-lib
 rust-lib:
 	@echo "Building rust kernel library"
 	cargo build --target $(RUST_TARGET)
-	@ECHO "Rust library built"
+	@echo "Rust library built"
 
 # rust-release:
 # 	@echo "Building optimized Rust kernel library..."

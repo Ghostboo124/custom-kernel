@@ -4,6 +4,7 @@ target/
 .vscode/*
 !.vscode/settings.json
 *.o
+*.a
 *.img
 *.bin
 .clangd

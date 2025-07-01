@@ -1,6 +1,6 @@
 // Video library in rust
 
-use core::ptr;
+use core::{ptr, u8};
 
 const VGA_WIDTH: usize = 80;
 const VGA_HEIGHT: usize = 25;
@@ -44,12 +44,12 @@ impl VgaWriter {
         }
     }
 
-    //! Helper function to combine Foreground and Background colors
-    fn color_code(foreground: Color, background: Color) {
+    /// Helper function to combine Foreground and Background colors
+    fn color_code(foreground: Color, background: Color) -> u8 {
         (background as u8) << 4 | (foreground as u8)
     }
 
-    //! Safe wrapper around VGA memory access
+    /// Safe wrapper around VGA memory access
     fn write_char(&mut self, character: u8, color: u8, col: usize, row: usize) {
         let offset = row * VGA_WIDTH + col;
         let char_with_color = (color as u16) << 8 | character as u16;
@@ -70,6 +70,13 @@ impl VgaWriter {
                     self.write_char(byte, self.color_code, self.column_position, self.row_position);
                     self.column_position += 1;
                 }
+                // Newline (\n) or Line feed (\r)
+                0x0d | 0x0a => {
+                    self.new_line();
+                }
+                _ => {
+                    todo!("Handle non printable chars");
+                }
             }
         }
     }
@@ -88,7 +95,7 @@ impl VgaWriter {
         unsafe {
             // Copy each line up one position
             for row in 1..VGA_HEIGHT {
-                for col in 0..VGA_HEIGHT {
+                for col in 0..VGA_WIDTH {
                     let src_offset = row * VGA_WIDTH + col;
                     let dst_offset = (row - 1) * VGA_WIDTH + col;
                     let character = ptr::read_volatile(VGA_MEMORY.add(src_offset));
@@ -121,14 +128,14 @@ impl VgaWriter {
     }
 }
 
-// Global writer instance, for interfacing with C
+/// Global writer instance, for interfacing with C
 static mut WRITER: VgaWriter = VgaWriter {
     column_position: 0,
     row_position: 0,
     color_code: 15, // White on black
 };
 
-// Write String function to be called from C
+/// Write String function to be called from C
 #[no_mangle]
 pub extern "C" fn print(s: *const u8, len: usize) {
     if s.is_null() {
@@ -138,16 +145,18 @@ pub extern "C" fn print(s: *const u8, len: usize) {
     unsafe {
         // Convert C to Rust slice
         let slice = core::slice::from_raw_parts(s, len);
-        if let Ok(string) = core::string::from_utf8(slice) {
-            WRITER.write_string(string);
+        if let Ok(string) = core::str::from_utf8(slice) {
+            let writer = &mut *core::ptr::addr_of_mut!(WRITER);
+            writer.write_string(string);
         }
     }
 }
 
 pub fn init_video() {
     unsafe {
-        WRITER.clear_screen();
-        WRITER.set_color(Color::LightGreen, Color::Black);
-        WRITER.write_string("Rust Video System Initialized\n");
+        let writer = &mut *core::ptr::addr_of_mut!(WRITER);
+        writer.clear_screen();
+        writer.set_color(Color::LightGreen, Color::Black);
+        writer.write_string("Rust Video System Initialized\n");
     }
 }

@@ -1,8 +1,10 @@
 #![no_std]              // Disable the standard library
 #![no_main]             // Disable rust's standard main function
-#![feature(asm_const)]  // Enable inline assembly
+#![allow(dead_code)]
+// #![feature(asm_const)]  // Enable inline assembly
 
 use core::panic::PanicInfo;
+use core::arch::asm;
 
 mod video; // Include the video module
 
@@ -20,5 +22,5 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn init_rkernel() {
-    video::init_video
+    video::init_video();
 }

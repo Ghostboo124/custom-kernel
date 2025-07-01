@@ -17,4 +17,7 @@ string string_l(const char *literal);
 string string_ca_max(const char *array, size_t max_length);
 string string_c(const char c);
 
-// TODO: Fuck this, I am dealing with this later, my brain is fried
+// Standard C library functions needed by Rust
+void* memcpy(void* dest, const void* src, size_t n);
+void* memset(void* s, int c, size_t n);
+int memcmp(const void* s1, const void* s2, size_t n);

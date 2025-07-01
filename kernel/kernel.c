@@ -6,7 +6,10 @@ License, Version 1, as published by Ben McGinnes. See the
 COPYING.WTFNMFPLv1a.txt file for more details.
 */
 
-#include "types.h"
+#include <types.h>
+
+// Rust functions
+extern void init_rkernel(void);
 
 // Video memory for text mode
 volatile char* video_memory = (volatile char*)0xB8000;
@@ -27,6 +30,8 @@ void kernel_main() {
         video_memory[pos * 2 + 1] = 0x0F;         // Attribute (bright white on black)
         pos++;
     }
+
+    init_rkernel();
     
     // Infinite loop to prevent kernel from returning
     while (1) {

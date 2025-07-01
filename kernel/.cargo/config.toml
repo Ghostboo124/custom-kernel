@@ -1,0 +1,7 @@
+[build]
+# Tell Cargo to build the standard library from source for our custom target
+target = "target.json"
+
+[unstable]
+# Enable the build-std feature which allows building the standard library
+build-std = ["core", "alloc"]
