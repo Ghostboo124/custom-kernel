@@ -1,8 +1,11 @@
-.vscode/
 out/
+target/
 .cache/
+.vscode/*
+!.vscode/settings.json
 *.o
 *.img
 *.bin
 .clangd
 compile_commands.json
+Cargo.lock

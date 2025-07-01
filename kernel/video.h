@@ -1,7 +1,6 @@
 #pragma once
 
-#include "types.h"
-#include "string.h"
+#include <types.h>
 
 enum video_type {
     VIDEO_TYPE_NONE = 0x00,
@@ -11,5 +10,5 @@ enum video_type {
 
 uint16_t detect_bios_area_hardware(void);
 enum video_type get_bios_area_video_type(void);
-void write_string( int color, const char *string );
+void write_string( uint8_t color, const char *string );
 void init(void);

@@ -1,0 +1,21 @@
+[package]
+name     = "custom-kernel"
+version  = "0.1.0"
+edition  = "2021"
+
+# Creates a static library that can be linked with C code
+[lib]
+crate-type = ["staticlib"]
+path       = "kenel/lib.rs"
+
+[dependencies]
+
+# Build configuration for kernel development
+[profile.dev]
+# Disable stack unwinding (not available in kernel space)
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+# Enable link-time optimisations
+lto   = true

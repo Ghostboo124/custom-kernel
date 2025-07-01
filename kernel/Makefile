@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean rust-lib
 
 # Detect operating system
 ifeq ($(OS),Windows_NT)
@@ -18,13 +18,19 @@ CC			:= $(ARCH)-gcc
 LD			:= $(ARCH)-ld
 OBJCOPY		:= $(ARCH)-objcopy
 
+# Rust configuration
+RUST_TARGET 		:= ./target.json
+RUST_LIB			:= target/$(RUST_TARGET)/debug/libcustom_kernel.a
+RUST_LIB_RELEASE	:= target/$(RUST_TARGET)/release/libcustom_kernel.a
+
+# Include directories
 KERNEL_INCLUDE_DIRS		:= $(shell find . -type d)
 KERNEL_INCLUDE_FLAGS	:= $(addprefix -I, $(SHARED_INCLUDE_DIRS))
 
 SHARED_INCLUDE_DIRS 	:= $(shell find ../shared -type d)
 SHARED_INCLUDE_FLAGS 	:= $(addprefix -I, $(SHARED_INCLUDE_DIRS))
 
-CFLAGS := -g -O0 -ffreestanding -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mcmodel=kernel -mno-mmx -mno-sse -mno-sse2 $(KERNEL_INCLUDE_FLAGS) $(SHARED_INCLUDE_FLAGS) -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c -mcmodel=large -mno-red-zone
+CFLAGS 		:= -g -O0 -ffreestanding -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mcmodel=kernel -mno-mmx -mno-sse -mno-sse2 $(KERNEL_INCLUDE_FLAGS) $(SHARED_INCLUDE_FLAGS) -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c -mcmodel=large -mno-red-zone
 LDFLAGS		:= -T linker.ld
 
 C_SRC		:= $(shell find . -name '*.c')
@@ -41,7 +47,7 @@ TARGET	:= kernel.bin
 all: $(TARGET)
 
 # Build the kernel executable
-$(TARGET): ../shared/libshared.a $(OBJ)
+$(TARGET): ../shared/libshared.a $(OBJ) rust-lib
 	mkdir -p ../out/kernel/
 # 	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJL) ../shared/libshared.a
 # 	$(OBJCOPY) -O binary ../out/kernel/$(ELF) ../out/kernel/$(TARGET)
@@ -55,12 +61,25 @@ $(TARGET): ../shared/libshared.a $(OBJ)
 %.o: %.cpp
 	$(CC) $(CFLAGS) -std=c++23 -fno-rtti -c $< -o $@
 
+rust-lib:
+	@echo "Building rust kernel library"
+	cargo build --target $(RUST_TARGET)
+	@ECHO "Rust library built"
+
+# rust-release:
+# 	@echo "Building optimized Rust kernel library..."
+# 	@rustup target list --installed | grep -q $(RUST_TARGET) || rustup target add $(RUST_TARGET)
+# 	cargo build --target $(RUST_TARGET) --release
+# 	@echo "Optimized Rust library built successfully"
+
 # Clean build artifacts
 clean:
 ifeq ($(OS),Windows_NT)
 	@if exist "$(shell find . -name '*.o')" $(RM) "$(shell find . -name '*.o')" || echo.
 	@if exist "..\out\kernel\$(ELF)" $(RM) "..\out\kernel\$(TARGET)" 2>$(NULL_DEVICE) || echo.
 	@if exist "..\out\kernel\$(TARGET)" $(RM) "..\out\kernel\$(TARGET)" 2>$(NULL_DEVICE) || echo.
+	cargo clean || echo.
 else
 	$(RM) $(shell find . -name '*.o') ../out/kernel/$(ELF) ../out/kernel/$(TARGET) || true
+	cargo clean || true
 endif
