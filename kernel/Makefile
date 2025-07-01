@@ -13,10 +13,10 @@ endif
 
 # Project settings
 # Compiler settings
-ARCH		:= x86_64-elf
-CC			:= $(ARCH)-gcc
-LD			:= $(ARCH)-ld
-OBJCOPY		:= $(ARCH)-objcopy
+ARCH		:= x86_64-elf  
+CC			:= gcc -m32
+LD			:= ld -m elf_i386
+OBJCOPY		:= objcopy
 
 # Rust configuration
 RUST_TARGET 		:= ./target.json
@@ -30,7 +30,7 @@ KERNEL_INCLUDE_FLAGS	:= $(addprefix -I, $(SHARED_INCLUDE_DIRS))
 SHARED_INCLUDE_DIRS 	:= $(shell find ../shared -type d)
 SHARED_INCLUDE_FLAGS 	:= $(addprefix -I, $(SHARED_INCLUDE_DIRS))
 
-CFLAGS 		:= -g -O0 -ffreestanding -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mcmodel=kernel -mno-mmx -mno-sse -mno-sse2 $(KERNEL_INCLUDE_FLAGS) $(SHARED_INCLUDE_FLAGS) -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c -mcmodel=large -mno-red-zone
+CFLAGS 		:= -g -O0 -ffreestanding -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 $(KERNEL_INCLUDE_FLAGS) $(SHARED_INCLUDE_FLAGS) -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c
 LDFLAGS		:= -T linker.ld
 
 C_SRC		:= $(shell find . -name '*.c')
@@ -47,19 +47,19 @@ TARGET	:= kernel.bin
 all: $(TARGET)
 
 # Build the kernel executable
-$(TARGET): ../shared/libshared.a $(OBJ) rust-lib
+$(TARGET): ../shared/libshared.a $(OBJ)
 	mkdir -p ../out/kernel/
-	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJ) ../shared/libshared.a $(RUST_LIB)
+	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJ) ../shared/libshared.a
 	$(OBJCOPY) -O binary ../out/kernel/$(ELF) ../out/kernel/$(TARGET)
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) -std=c23 -c $< -o $@
+	$(CC) $(CFLAGS) -std=c11 -c $< -o $@
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -std=c++23 -fno-rtti -c $< -o $@
+	$(CC) $(CFLAGS) -std=c++11 -fno-rtti -c $< -o $@
 
 rust-lib:
 	@echo "Building rust kernel library"

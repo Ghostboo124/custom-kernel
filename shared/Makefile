@@ -14,11 +14,11 @@ endif
 # Project settings
 # Compiler settings
 ARCH		:= x86_64-elf
-CC			:= $(ARCH)-gcc
-AR			:= $(ARCH)-ar
-OBJCOPY		:= $(ARCH)-objcopy
+CC			:= gcc -m32
+AR			:= ar
+OBJCOPY		:= objcopy
 
-CFLAGS		:= -g -O0 -ffreestanding  -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mcmodel=kernel  -mno-mmx -mno-sse -mno-sse2 -I. -I../kernel -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c -mcmodel=large -mno-red-zone
+CFLAGS		:= -g -O0 -ffreestanding -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -I. -I../kernel -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -c
 
 C_SRC		:= $(shell find . -name '*.c')
 ASM_SRC		:= $(shell find . -name '*.S') # For this, we will use GNU assembly because it can be compiled to .o files which are easier to deal with
@@ -37,10 +37,10 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) -std=c23 -c $< -o $@
+	$(CC) $(CFLAGS) -std=c11 -c $< -o $@
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -std=c++23 -fno-rtti -c $< -o $@
+	$(CC) $(CFLAGS) -std=c++11 -fno-rtti -c $< -o $@
 
 # Clean build artifacts
 clean:
