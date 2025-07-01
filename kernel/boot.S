@@ -6,7 +6,6 @@
 
 .code16                    # We are in 16bit "Real" mode
 .global _start
-
 _start:
     # Set up segments
     cli                    # Disable interrupts

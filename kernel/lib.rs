@@ -6,7 +6,10 @@
 use core::panic::PanicInfo;
 use core::arch::asm;
 
-mod video; // Include the video module
+pub struct KernelMemory;
+
+mod video;  // Include the video module
+mod memory; // Include the memory module
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

@@ -49,7 +49,7 @@ all: $(TARGET)
 # Build the kernel executable
 $(TARGET): ../shared/libshared.a $(OBJ) rust-lib
 	mkdir -p ../out/kernel/
-	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJL) ../shared/libshared.a $(RUST_LIB)
+	$(LD) $(LDFLAGS) -o ../out/kernel/$(ELF) $(OBJ) ../shared/libshared.a $(RUST_LIB)
 	$(OBJCOPY) -O binary ../out/kernel/$(ELF) ../out/kernel/$(TARGET)
 
 %.o: %.S
