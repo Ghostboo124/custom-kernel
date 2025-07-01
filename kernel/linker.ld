@@ -6,6 +6,13 @@ ENTRY(_start)
    kernel image. */
 SECTIONS
 {
+	/* Boot sector located at 0x7C00 */
+	. = 0x7C00;
+
+	.boot : {
+		*(.text.boot)
+	}
+
 	/* It used to be universally recommended to use 1M as a start offset,
 	   as it was effectively guaranteed to be available under BIOS systems.
 	   However, UEFI has made things more complicated, and experimental data
@@ -17,6 +24,7 @@ SECTIONS
 	   memory which is verified to be available by the firmware, in order to
 	   work around this issue. This does not use that feature, so 2M was
 	   chosen as a safer option than the traditional 1M. */
+
 	. = 2M;
 
 	/* First put the multiboot header, as it is required to be put very early

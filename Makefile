@@ -26,8 +26,8 @@ clean:
 	$(MAKE) -C shared clean
 	$(MAKE) -C bootloader clean
 
-run: bootloader
-	qemu-system-x86_64 -drive format=raw,file=kernel.img -display sdl -vga cirrus
+run: all
+	qemu-system-x86_64 -kernel out/kernel/kernel.bin -vga cirrus
 
 debug: all
 	@echo "UNFINISHED"
