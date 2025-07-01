@@ -158,5 +158,7 @@ pub fn init_video() {
         writer.clear_screen();
         writer.set_color(Color::LightGreen, Color::Black);
         writer.write_string("Rust Video System Initialized\n");
+        writer.set_color(Color::White, Color::Black);
+        writer.write_string("Kernel is running!\n");
     }
 }
